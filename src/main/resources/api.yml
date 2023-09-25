@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  title: Price Service API
+  description: This is a Price Service API developed with Hexagonal Architecture and TDD.
+  contact:
+    email: victormartingil@gmail.com
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080/api/v1
+tags:
+  - name: prices
+    description: Everything about prices
+
+paths:
+  /api/v1/price:
+    get:
+      tags:
+        - prices
+      description: Get the price according the request params
+      operationId: getPrice
+      parameters:
+        - name: productId
+          in: query
+          description: The product id
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: brandId
+          in: query
+          description: The brand id
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: date
+          in: query
+          description: The date
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The required price
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  responses:
+    InternalError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: SERVICE_UNAVAILABLE
+                message: Error calling API Rest
+    Unauthorized:
+      description: Unauthorized due to invalid headers
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: UNAUTHORIZED
+                message: Error calling API Rest
+    Forbidden:
+      description: Forbidden due to invalid session or missing headers
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: FORBIDDEN
+                message: Error calling API Rest
+    NotFound:
+      description: Entity not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: NOT_FOUND
+                message: Error calling API Rest
+    UnprocessableEntity:
+      description: The request was well-formed, but it has failed due to semantic or
+        functional errors
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: UNPROCESSABLE_ENTITY
+                message: Error calling API Rest
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            ExampleError:
+              value:
+                code: BAD_REQUEST
+                message: Error calling API Rest
+  schemas:
+    Error:
+      title: Error
+      required:
+        - message
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+    ErrorCode:
+      title: ErrorCode
+      type: string
+      description: |
+        Types of error
+         * `UNKNOWN_ERROR` Error is not recognized
+         * `SERVICE_UNAVAILABLE` The service is down temporary
+         * `INVALID_ARGUMENT` Some arguments are not valid
+         * `UNAUTHORIZED` The request is not authorized
+         * `FORBIDDEN` The path is forbidden and can´t be accesed
+         * `NOT_FOUND` Element not found
+         * `UNPROCESSABLE_ENTITY` The entity can´t be processed
+         * `BAD_REQUEST` The request if not well formed
+      enum:
+        - UNKNOWN_ERROR
+        - SERVICE_UNAVAILABLE
+        - INVALID_ARGUMENT
+        - UNAUTHORIZED
+        - FORBIDDEN
+        - NOT_FOUND
+        - UNPROCESSABLE_ENTITY
+        - BAD_REQUEST
+    PriceRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          example: 2020-06-14-20.30.00
+        productId:
+          type: integer
+          format: int32
+          example: 2
+        brandId:
+          type: integer
+          format: int32
+          example: 3
+    PriceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        productId:
+          type: integer
+          format: int32
+          example: 2
+        brandId:
+          type: integer
+          format: int32
+          example: 3
+        priceList:
+          type: integer
+          format: int32
+          example: 4
+        startDate:
+          type: string
+          example: 2020-06-14-18.30.00
+        endDate:
+          type: string
+          example: 2020-06-15-11.00.00
+        price:
+          type: number
+          format: double
+          example: 35.50
